@@ -26,7 +26,7 @@ WIDTH = 800
 HEIGHT = 600
 FPS = 60
 
-NUM_ASTEROIDS = 5
+NUM_ASTEROIDS = 3
 
 ROTATION_SPEED = 3
 
@@ -54,7 +54,7 @@ ORANGE = (255, 140, 50)
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 
 pygame.display.set_caption(
-   "Lesson 4 - Velocity, Acceleration, Momentum, and Drag"
+    "Lesson 4 - Velocity, Acceleration, Momentum, and Drag"
 )
 
 clock = pygame.time.Clock()
@@ -65,496 +65,597 @@ font = pygame.font.Font(None, 25)
 # =========================================================
 
 class Spaceship:
-   def __init__(self, x, y):
-       # Position tells us WHERE the ship is.
-       self.position = pygame.Vector2(x, y)
+    def __init__(self, x, y):
+        # Position tells us WHERE the ship is.
+        self.position = pygame.Vector2(x, y)
 
-       # Velocity tells us HOW the ship is moving.
-       self.velocity = pygame.Vector2(0, 0)
+        # Velocity tells us HOW the ship is moving.
+        self.velocity = pygame.Vector2(0, 0)
 
-       # Acceleration tells us HOW velocity is changing.
-       self.acceleration = pygame.Vector2(0, 0)
+        # Acceleration tells us HOW velocity is changing.
+        self.acceleration = pygame.Vector2(0, 0)
 
-       # Start facing upward.
-       self.angle = 90
-       self.radius = 18
-       self.is_thrusting = False
+        # Start facing upward.
+        self.angle = 90
+        self.radius = 18
+        self.is_thrusting = False
 
-   # -----------------------------------------------------
-   # Convert Angle -> Forward Direction Vector
-   # Lesson 3 Review
-   # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Convert Angle -> Forward Direction Vector
+    # Lesson 3 Review
+    # -----------------------------------------------------
 
-   def get_forward_vector(self):
-       radians = math.radians(self.angle)
-       forward = pygame.Vector2(
-           math.cos(radians),
-           -math.sin(radians)
-       )
-       return forward
+    def get_forward_vector(self):
+        radians = math.radians(self.angle)
+        forward = pygame.Vector2(
+                math.cos(radians),
+                -math.sin(radians)
+        )
+        return forward
 
-   # -----------------------------------------------------
-   # Update Spaceship
-   # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Update Spaceship
+    # -----------------------------------------------------
 
-   def update(self):
-       keys = pygame.key.get_pressed()
+    def update(self):
+        keys = pygame.key.get_pressed()
 
-       # -------------------------------------------------
-       # Rotation
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # Rotation
+        # -------------------------------------------------
 
-       if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-           self.angle += ROTATION_SPEED
-       if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-           self.angle -= ROTATION_SPEED
-       # -------------------------------------------------
-       # Calculate Forward Direction
-       # -------------------------------------------------
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                self.angle += ROTATION_SPEED
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                self.angle -= ROTATION_SPEED
+        # -------------------------------------------------
+        # Calculate Forward Direction
+        # -------------------------------------------------
 
-       forward = self.get_forward_vector()
+        forward = self.get_forward_vector()
 
-       # -------------------------------------------------
-       # LESSON 4:
-       # Reset acceleration every frame.
-       #
-       # The engine should only accelerate the ship
-       # while the thrust key is being pressed.
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # LESSON 4:
+        # Reset acceleration every frame.
+        #
+        # The engine should only accelerate the ship
+        # while the thrust key is being pressed.
+        # -------------------------------------------------
 
-       self.acceleration = pygame.Vector2(0, 0)
-       self.is_thrusting = False
+        self.acceleration = pygame.Vector2(0, 0)
+        self.is_thrusting = False
 
-       # -------------------------------------------------
-       # Apply Thrust
-       #
-       # We are NOT directly changing position.
-       #
-       # Instead:
-       #
-       # forward direction * thrust
-       #          ↓
-       #     acceleration
-       # -------------------------------------------------
-       if keys[pygame.K_UP] or keys[pygame.K_w]:
-           self.acceleration = forward * THRUST
-           self.is_thrusting = True
+        # -------------------------------------------------
+        # Apply Thrust
+        #
+        # We are NOT directly changing position.
+        #
+        # Instead:
+        #
+        # forward direction * thrust
+        # -> acceleration
+        # -------------------------------------------------
+        if keys[pygame.K_UP] or keys[pygame.K_w]:
+                self.acceleration = forward * THRUST
+                self.is_thrusting = True
 
-       # -------------------------------------------------
-       # LESSON 4 PHYSICS
-       #
-       # Acceleration changes velocity.
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # LESSON 4 PHYSICS
+        #
+        # Acceleration changes velocity.
+        # -------------------------------------------------
 
-       self.velocity += self.acceleration
+        self.velocity += self.acceleration
 
-       # -------------------------------------------------
-       # Apply Drag
-       #
-       # Drag gradually reduces the magnitude
-       # of the velocity vector.
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # Apply Drag
+        #
+        # Drag gradually reduces the magnitude
+        # of the velocity vector.
+        # -------------------------------------------------
 
-       self.velocity *= DRAG
+        self.velocity *= DRAG
 
-       # -------------------------------------------------
-       # Limit Maximum Speed
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # Limit Maximum Speed
+        # -------------------------------------------------
 
-       if self.velocity.length() > MAX_SPEED:
-           self.velocity.scale_to_length(MAX_SPEED)
+        if self.velocity.length() > MAX_SPEED:
+                self.velocity.scale_to_length(MAX_SPEED)
 
-       # -------------------------------------------------
-       # Velocity changes position.
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # Velocity changes position.
+        # -------------------------------------------------
 
-       self.position += self.velocity
+        self.position += self.velocity
 
-       # -------------------------------------------------
-       # Screen Wrapping
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # Screen Wrapping
+        # -------------------------------------------------
 
-       if self.position.x > WIDTH:
-           self.position.x = 0
+        if self.position.x > WIDTH:
+                self.position.x = 0
 
-       if self.position.x < 0:
-           self.position.x = WIDTH
+        if self.position.x < 0:
+                self.position.x = WIDTH
 
-       if self.position.y > HEIGHT:
-           self.position.y = 0
+        if self.position.y > HEIGHT:
+                self.position.y = 0
 
-       if self.position.y < 0:
-           self.position.y = HEIGHT
+        if self.position.y < 0:
+                self.position.y = HEIGHT
 
-   # -----------------------------------------------------
-   # Draw Spaceship
-   # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Draw Spaceship
+    # -----------------------------------------------------
 
-   def draw(self):
-       forward = self.get_forward_vector()
+    def draw(self):
+        forward = self.get_forward_vector()
 
-       # Rotate the forward vector to make
-       # the other two corners of the ship.
-       left = forward.rotate(140)
-       right = forward.rotate(-140)
+        # Rotate the forward vector to make
+        # the other two corners of the ship.
+        left = forward.rotate(140)
+        right = forward.rotate(-140)
 
-       # Triangle points
-       front = self.position + forward * 22
-       back_left = self.position + left * 17
-       back_right = self.position + right * 17
+        # Triangle points
+        front = self.position + forward * 22
+        back_left = self.position + left * 17
+        back_right = self.position + right * 17
 
-       pygame.draw.polygon(
-           screen,
-           GREEN,
-           [front, back_left, back_right],
-           2
-       )
+        pygame.draw.polygon(
+                screen,
+                GREEN,
+                [front, back_left, back_right],
+                2
+        )
 
-       # Center point
-       pygame.draw.circle(
-           screen,
-           GREEN,
-           (int(self.position.x), int(self.position.y)),
-           3
-       )
+        # Center point
+        pygame.draw.circle(
+                screen,
+                GREEN,
+                (int(self.position.x), int(self.position.y)),
+                3
+        )
 
-       # -------------------------------------------------
-       # Draw Engine Flame While Thrusting
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # Draw Engine Flame While Burning
+        # -------------------------------------------------
 
-       if self.is_thrusting:
-           flame_position = (
-               self.position - forward * 20
-           )
-           pygame.draw.circle(
-               screen,
-               ORANGE,
-               (
-                   int(flame_position.x),
-                   int(flame_position.y)
-               ),
-               5
-           )
+        if self.is_thrusting:
+                flame_position = (
+                    self.position - forward * 20
+                )
+                pygame.draw.circle(
+                    screen,
+                    ORANGE,
+                    (
+                        int(flame_position.x),
+                        int(flame_position.y)
+                    ),
+                    5
+                )
 
-   # -----------------------------------------------------
-   # Draw Forward Vector
-   #
-   # RED = direction the ship is FACING
-   # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Draw Forward Vector
+    #
+    # RED = direction the ship is FACING
+    # -----------------------------------------------------
 
-   def draw_forward_vector(self):
-       forward = self.get_forward_vector()
-       end_point = (
-           self.position + forward * 60
-       )
-       pygame.draw.line(
-           screen,
-           RED,
-           self.position,
-           end_point,
-           2
-       )
+    def draw_forward_vector(self):
+        forward = self.get_forward_vector()
+        end_point = (
+                self.position + forward * 60
+        )
+        pygame.draw.line(
+                screen,
+                RED,
+                self.position,
+                end_point,
+                2
+        )
 
-   # -----------------------------------------------------
-   # Draw Velocity Vector
-   #
-   # BLUE = direction the ship is MOVING
-   # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Draw Velocity Vector
+    #
+    # BLUE = direction the ship is MOVING
+    # -----------------------------------------------------
 
-   def draw_velocity_vector(self):
-       # Only draw if the ship is moving.
-       if self.velocity.length() > 0.1:
-           end_point = (
-               self.position
-               + self.velocity * 10
-           )
-           pygame.draw.line(
-               screen,
-               BLUE,
-               self.position,
-               end_point,
-               3
-           )
+    def draw_velocity_vector(self):
+        # Only draw if the ship is moving.
+        if self.velocity.length() > 0.1:
+                end_point = (
+                    self.position
+                    + self.velocity * 10
+                )
+                pygame.draw.line(
+                    screen,
+                    BLUE,
+                    self.position,
+                    end_point,
+                    3
+                )
 
 # =========================================================
 # Asteroid Class
 # =========================================================
 
 class Asteroid:
-   def __init__(self):
-       self.radius = random.randint(18, 35)
-       self.position = pygame.Vector2(
-           random.randint(
-               self.radius,
-               WIDTH - self.radius
-           ),
-           random.randint(
-               self.radius,
-               HEIGHT - self.radius
-           )
-       )
+    def __init__(self):
+        self.radius = random.randint(18, 35)
+        self.position = pygame.Vector2(
+                random.randint(
+                    self.radius,
+                    WIDTH - self.radius
+                ),
+                random.randint(
+                    self.radius,
+                    HEIGHT - self.radius
+                )
+        )
 
-       # Random direction
-       angle = random.uniform(
-           0,
-           2 * math.pi
-       )
+        # Random direction
+        angle = random.uniform(
+                0,
+                2 * math.pi
+        )
 
-       # Random speed
-       speed = random.uniform(
-           1.0,
-           2.5
-       )
+        # Random speed
+        speed = random.uniform(
+                1.0,
+                2.5
+        )
 
-       self.velocity = pygame.Vector2(
-           math.cos(angle),
-           math.sin(angle)
-       ) * speed
+        self.velocity = pygame.Vector2(
+                math.cos(angle),
+                math.sin(angle)
+        ) * speed
 
-   def update(self):
-       # Lesson 1:
-       # Position changes by velocity.
-       self.position += self.velocity
+    def update(self):
+        # Lesson 1:
+        # Position changes by velocity.
+        self.position += self.velocity
 
-       # Screen wrapping
-       if self.position.x > WIDTH + self.radius:
-           self.position.x = -self.radius
+        # Screen wrapping
+        if self.position.x > WIDTH + self.radius:
+                self.position.x = -self.radius
 
-       if self.position.x < -self.radius:
-           self.position.x = WIDTH + self.radius
+        if self.position.x < -self.radius:
+                self.position.x = WIDTH + self.radius
 
-       if self.position.y > HEIGHT + self.radius:
-           self.position.y = -self.radius
+        if self.position.y > HEIGHT + self.radius:
+                self.position.y = -self.radius
 
-       if self.position.y < -self.radius:
-           self.position.y = HEIGHT + self.radius
+        if self.position.y < -self.radius:
+                self.position.y = HEIGHT + self.radius
 
-   def draw(self):
-       pygame.draw.circle(
-           screen,
-           GRAY,
-           (
-               int(self.position.x),
-               int(self.position.y)
-           ),
-           self.radius,
-           2
-       )
+    def draw(self):
+        pygame.draw.circle(
+                screen,
+                GRAY,
+                (
+                    int(self.position.x),
+                    int(self.position.y)
+                ),
+                self.radius,
+                2
+        )
 
 # =========================================================
 # Missile Class
 # =========================================================
 
 class Missile:
-   def __init__(self, start_position, direction):
-       self.position = pygame.Vector2(
-           start_position
-       )
+    def __init__(self, start_position, direction):
+        self.position = pygame.Vector2(
+                start_position
+        )
 
-       self.radius = 4
+        self.radius = 4
 
-       # Direction * Speed = Velocity
-       self.velocity = (
-           direction * MISSILE_SPEED
-       )
+        # Direction * Speed = Velocity
+        self.velocity = (
+                direction * MISSILE_SPEED
+        )
 
-   def update(self):
-       self.position += self.velocity
+    def update(self):
+        self.position += self.velocity
 
-   def draw(self):
-       pygame.draw.circle(
-           screen,
-           YELLOW,
-           (
-               int(self.position.x),
-               int(self.position.y)
-           ),
-           self.radius
-       )
+    def draw(self):
+        pygame.draw.circle(
+                screen,
+                YELLOW,
+                (
+                    int(self.position.x),
+                    int(self.position.y)
+                ),
+                self.radius
+        )
 
-   def is_off_screen(self):
-       return (
-           self.position.x < 0
-           or self.position.x > WIDTH
-           or self.position.y < 0
-           or self.position.y > HEIGHT
-       )
+    def is_off_screen(self):
+        return (
+                self.position.x < 0
+                or self.position.x > WIDTH
+                or self.position.y < 0
+                or self.position.y > HEIGHT
+        )
 
 # =========================================================
 # Enemy Class
 # =========================================================
 
 class Enemy:
-   # Class variables (Shared by all enemies)
-   DETECTION_RANGE = 300
-   FOV_THRESHOLD = 0.7
-   FIRE_COOLDOWN = 3000
+    # Class variables (Shared by all enemies)
+    DETECTION_RANGE = 300
+    FOV_THRESHOLD = 0.7
+    FIRE_COOLDOWN = 3000
 
-   def __init__(self, x, y):
-       self.position = pygame.Vector2(
-           WIDTH / 4,
-           HEIGHT / 2
-       )
-       self.angle = 0
-       self.last_shot_time = 0
+    def __init__(self, x, y):
+        self.position = pygame.Vector2(
+                x,
+                y
+        )
+        self.velocity = pygame.Vector2(0, 0)
+        self.angle = 0
+        self.last_shot_time = 0
+        self.speed = 1
+        self.acceleration = 0.1
+        self.drag = 0.99
+        self.rotation_speed = 1
+        self.radius = 18
 
-   def get_forward_vector(self):
-       radians = math.radians(self.angle)
-       enemy_forward = pygame.Vector2(
-           math.cos(radians),
-           -math.sin(radians)
-       )
-       return enemy_forward
 
-   def draw(self, player):
-       self.angle += 0.5
-       # Draw Detection Circle
-       pygame.draw.circle(
-           screen,
-           GRAY,
-           self.position,
-           self.DETECTION_RANGE,
-           1
-       )
+    def get_forward_vector(self):
+        radians = math.radians(self.angle)
+        enemy_forward = pygame.Vector2(
+                math.cos(radians),
+                -math.sin(radians)
+        )
+        return enemy_forward
 
-       if detection(player, self):
-           self.rotate_to_player(player)
-           pygame.draw.circle(
-               screen,
-               RED,
-               self.position,
-               5
-           )
-           self.respond(player)
-       else:
-           pygame.draw.circle(
-               screen,
-               GRAY,
-               self.position,
-               5
-           )
+    def update(self, player):
+        if detection(player, self):
+            direction = player.position - self.position
 
-   def draw_forward_vector(self):
-       forward = self.get_forward_vector()
-       pygame.draw.line(
-           screen,
-           RED,
-           self.position,
-           self.position + forward * 100,
-           3
-       )
+            if direction.length() > 0:
+                direction = direction.normalize()
+                self.position += direction * self.speed
+                target_angle = math.degrees(
+                    math.atan2(-direction.y, direction.x)
+                )
+                angle_difference = (
+                    target_angle - self.angle + 180
+                ) % 360 - 180
+                if abs(angle_difference) < self.rotation_speed:
+                    self.angle = target_angle
+                else:
+                    self.angle += (
+                        self.rotation_speed
+                        if angle_difference > 0
+                        else -self.rotation_speed
+                    )
+                if abs(angle_difference) < 45:
+                    forward = self.get_forward_vector()
+                    self.velocity += forward * self.acceleration
+            self.velocity *= self.drag
 
-   def rotate_to_player(self, player):
-       direction = player.position - self.position
-       if direction.length() > 0:
-           radians = math.atan2(-direction.y, direction.x)
-           self.angle = math.degrees(radians)
+            if self.velocity.length() > self.speed:
+                self.velocity.scale_to_length(self.speed)
 
-   def respond(self, player):
-       forward = self.get_forward_vector()
-       current_time = pygame.time.get_ticks()
+            self.position += self.velocity
 
-       if detection(player, self):
-           self.angle
-           direction = (
-               player.position - enemy.position
-           ).normalize()
-           if current_time - self.last_shot_time >= self.FIRE_COOLDOWN:
-               missile_velocity = (
-                   direction * MISSILE_SPEED
-               )
-               missile_start = (
-                   self.position
-                   + forward * 24
-               )
-               new_missile = Missile(
-                   missile_start,
-                   forward
-               )
-               missiles.append(
-                   new_missile
-               )
-               self.last_shot_time = current_time
-           else:
-               pass
+            self.respond(player)
+        else:
+            self.angle += self.rotation_speed
+            self.velocity *= self.drag
+            self.position += self.velocity
+
+    def draw(self, player):
+        # Draw Detection Circle
+        pygame.draw.circle(
+            screen,
+            GRAY,
+            self.position,
+            self.DETECTION_RANGE,
+            1
+        )
+        # Draw Enemy Ship
+        if detection(player, self):
+                self.rotate_to_player(player)
+                forward = self.get_forward_vector()
+                left = forward.rotate(140)
+                right = forward.rotate(-140)
+                front = self.position + forward * 22
+                back_left = self.position + left * 17
+                back_right = self.position + right * 17
+                pygame.draw.polygon(
+                    screen,
+                    RED,
+                    [front, back_left, back_right],
+                    2
+                )
+                pygame.draw.circle(
+                    screen,
+                    RED,
+                    self.position,
+                    5
+                )
+        else:
+                forward = self.get_forward_vector()
+                left = forward.rotate(140)
+                right = forward.rotate(-140)
+                front = self.position + forward * 22
+                back_left = self.position + left * 17
+                back_right = self.position + right * 17
+                pygame.draw.polygon(
+                    screen,
+                    GRAY,
+                    [front, back_left, back_right],
+                    2
+                )
+                pygame.draw.circle(
+                    screen,
+                    GRAY,
+                    self.position,
+                    5
+                )
+
+    def draw_forward_vector(self):
+        forward = self.get_forward_vector()
+        pygame.draw.line(
+                screen,
+                RED,
+                self.position,
+                self.position + forward * 100,
+                3
+        )
+
+    def rotate_to_player(self, player):
+        direction = player.position - self.position
+        if direction.length() > 0:
+            radians = math.atan2(-direction.y, direction.x)
+            self.angle = math.degrees(radians)
+
+    def respond(self, player):
+        forward = self.get_forward_vector()
+        current_time = pygame.time.get_ticks()
+
+        if detection(player, self):
+            self.angle
+            direction = (
+                player.position - self.position
+            ).normalize()
+            if current_time - self.last_shot_time >= self.FIRE_COOLDOWN:
+                missile_velocity = (
+                    direction * MISSILE_SPEED
+                )
+                missile_start = (
+                    self.position
+                    + forward * 24
+                )
+                new_missile = Missile(
+                    missile_start,
+                    forward
+                )
+                missiles.append(
+                    new_missile
+                )
+                self.last_shot_time = current_time
+            else:
+                pass
 
 # =========================================================
 # Player Detection
 # =========================================================
 
 def detection(player, enemy):
-   forward = enemy.get_forward_vector()
-   to_player = (
-       player.position - enemy.position
-   )
-   if to_player.length() > 0:
-       to_player = to_player.normalize()
-   distance = enemy.position.distance_to(
-       player.position
-   )
-   dot = enemy.get_forward_vector().dot(
-       to_player
-   )
+    forward = enemy.get_forward_vector()
+    to_player = (
+        player.position - enemy.position
+    )
+    if to_player.length() > 0:
+        to_player = to_player.normalize()
+    distance = enemy.position.distance_to(
+        player.position
+    )
+    dot = enemy.get_forward_vector().dot(
+        to_player
+    )
 
-   if (
-       distance < enemy.DETECTION_RANGE
-       and dot > enemy.FOV_THRESHOLD
-   ):
-       detected = True
+    if (
+        distance < enemy.DETECTION_RANGE
+        and dot > enemy.FOV_THRESHOLD
+    ):
+        detected = True
 
-   else:
-       detected = False
-   return detected
+    else:
+        detected = False
+    return detected
 
 # =========================================================
-# Collision Detection
+# Functions
 # =========================================================
 
 def missile_hits_asteroid(
-   missile,
-   asteroid
+    missile,
+    asteroid
 ):
-   distance = (
-       missile.position.distance_to(
-           asteroid.position
-       )
-   )
+    distance = (
+        missile.position.distance_to(
+                asteroid.position
+        )
+    )
 
-   return (
-       distance
-       < missile.radius + asteroid.radius
-   )
+    return (
+        distance
+        < missile.radius + asteroid.radius
+    )
 
 # My work
 def asteroid_hits_player(
-   asteroid,
-   player
+    asteroid,
+    player
 ):
-       distance = (
-           (asteroid.position - player.position).length()
-       )
-       return distance < asteroid.radius
+        distance = (
+                (asteroid.position - player.position).length()
+        )
+        return distance < asteroid.radius
+
+def missile_hits_player(
+    missile,
+    player
+):
+        distance = (
+                (missile.position - player.position).length()
+        )
+        return distance < missile.radius + player.radius
+
+def missile_hits_enemy(
+    missile,
+    enemy
+):
+        distance = (
+                (missile.position - enemy.position).length()
+        )
+        return distance < missile.radius + enemy.radius
+
+def game_over_screen():
+    game_over_font = pygame.font.Font(None, 72)
+    game_over_text = game_over_font.render(
+        "Game over!, You wanna try again? (R)",
+        True,
+        RED
+    )
+    text_rect = game_over_text.get_rect(
+        center=(WIDTH / 2, HEIGHT / 2)
+    )
+    screen.blit(game_over_text, text_rect)
+    pygame.display.flip()
+    pygame.time.delay(3000)
+    if pygame.key.get_pressed()[pygame.K_r]:
+        main()
+
+
 
 # =========================================================
 # Create Game Objects
 # =========================================================
 
 player = Spaceship(
-   WIDTH / 2,
-   HEIGHT / 2
+    WIDTH / 2,
+    HEIGHT / 2
 )
 
 enemy = Enemy(
-   WIDTH / 4,
-   HEIGHT / 2
+    WIDTH / 4,
+    HEIGHT / 2
 )
 
 asteroids = []
 
 for i in range(NUM_ASTEROIDS):
-   asteroids.append(
-       Asteroid()
-   )
+    asteroids.append(
+        Asteroid()
+    )
 
 missiles = []
 score = 0
@@ -565,311 +666,336 @@ score = 0
 
 running = True
 while running:
-   clock.tick(FPS)
-   # =====================================================
-   # 1. EVENT HANDLING
-   # =====================================================
-   for event in pygame.event.get():
-       if event.type == pygame.QUIT:
-           running = False
+    clock.tick(FPS)
+    # =====================================================
+    # 1. EVENT HANDLING
+    # =====================================================
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+                running = False
 
-       # -------------------------------------------------
-       # Fire Missile
-       # -------------------------------------------------
+        # -------------------------------------------------
+        # Fire Missile
+        # -------------------------------------------------
 
-       if event.type == pygame.KEYDOWN:
-           if event.key == pygame.K_SPACE:
-               # Missile fires in the direction
-               # the spaceship is facing.
-               forward = (
-                   player.get_forward_vector()
-               )
-               missile_start = (
-                   player.position
-                   + forward * 24
-               )
-               new_missile = Missile(
-                   missile_start,
-                   forward
-               )
-               missiles.append(
-                   new_missile
-               )
+        if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    # Missile fires in the direction
+                    # the spaceship is facing.
+                    forward = (
+                        player.get_forward_vector()
+                    )
+                    missile_start = (
+                        player.position
+                        + forward * 24
+                    )
+                    new_missile = Missile(
+                        missile_start,
+                        forward
+                    )
+                    missiles.append(
+                        new_missile
+                    )
 
-   # =====================================================
-   # 2. UPDATE PLAYER & ENEMY
-   # =====================================================
+    # =====================================================
+    # 2. UPDATE PLAYER & ENEMY
+    # =====================================================
 
-   player.update()
-   # =====================================================
-   # 3. UPDATE ASTEROIDS
-   # =====================================================
+    player.update()
+    enemy.update(player)
 
-   for asteroid in asteroids:
-       asteroid.update()
+    # =====================================================
+    # 3. UPDATE ASTEROIDS
+    # =====================================================
 
-   # =====================================================
-   # 4. UPDATE MISSILES
-   # =====================================================
+    for asteroid in asteroids:
+        asteroid.update()
 
-   for missile in missiles:
-       missile.update()
+    # =====================================================
+    # 4. UPDATE MISSILES
+    # =====================================================
 
-   # =====================================================
-   # 5. REMOVE OFF-SCREEN MISSILES
-   # =====================================================
+    for missile in missiles:
+        missile.update()
 
-   missiles = [
-       missile
-       for missile in missiles
-       if not missile.is_off_screen()
-   ]
+    # =====================================================
+    # 5. REMOVE OFF-SCREEN MISSILES
+    # =====================================================
 
-   # =====================================================
-   # 6. MISSILE / ASTEROID COLLISION
-   # =====================================================
+    missiles = [
+        missile
+        for missile in missiles
+        if not missile.is_off_screen()
+    ]
 
-   for missile in missiles[:]:
-       for asteroid in asteroids[:]:
-           if missile_hits_asteroid(
-               missile,
-               asteroid
-           ):
-               if missile in missiles:
-                   missiles.remove(
-                       missile
-                   )
-               if asteroid in asteroids:
-                   asteroids.remove(
-                       asteroid
-                   )
-               # Replace destroyed asteroid
-               asteroids.append(
-                   Asteroid()
-               )
-               score += 1
-               break
+    # =====================================================
+    # 6. MISSILE / ASTEROID COLLISION
+    # =====================================================
 
-   # =====================================================
-   # 6.5. ASTEROID ASTEROID COLLISION - this is actually just an edit of my crazy asteroids code
-   # =====================================================
+    for missile in missiles[:]:
+        for asteroid in asteroids[:]:
+                if missile_hits_asteroid(
+                    missile,
+                    asteroid
+                ):
+                    if missile in missiles:
+                        missiles.remove(
+                                missile
+                        )
+                    if asteroid in asteroids:
+                        asteroids.remove(
+                                asteroid
+                        )
+                    # Replace destroyed asteroid
+                    asteroids.append(
+                        Asteroid()
+                    )
+                    score += 1
+                    break
 
-   for i in range(len(asteroids)):
-       for j in range(i + 1, len(asteroids)):
-           a1 = asteroids[i]
-           a2 = asteroids[j]
+    # =====================================================
+    # 6.5. ASTEROID ASTEROID COLLISION - this is actually just an edit of my crazy asteroids code
+    # =====================================================
 
-           # Distance
-           dist_vec = a2.position - a1.position
-           distance = dist_vec.length()
-           min_dist = a1.radius + a2.radius
+    for i in range(len(asteroids)):
+        for j in range(i + 1, len(asteroids)):
+                a1 = asteroids[i]
+                a2 = asteroids[j]
 
-           if distance < min_dist:
-               # If overlap then skip
-               if distance == 0:
-                   continue
+                # Distance
+                dist_vec = a2.position - a1.position
+                distance = dist_vec.length()
+                min_dist = a1.radius + a2.radius
 
-               # Fix overlap
-               overlap = min_dist - distance
-               normal = dist_vec.normalize()
-               a1.position -= normal * (overlap * 0.5)
-               a2.position += normal * (overlap * 0.5)
+                if distance < min_dist:
+                    # If overlap then skip
+                    if distance == 0:
+                        continue
 
-               # This is the collision math
-               # the velocity on their direct path
-               rel_vel = a2.velocity - a1.velocity
-               vel_along_normal = rel_vel.dot(normal)
+                    # Fix overlap
+                    overlap = min_dist - distance
+                    normal = dist_vec.normalize()
+                    a1.position -= normal * (overlap * 0.5)
+                    a2.position += normal * (overlap * 0.5)
 
-               # 2v/m1+m2
-               if vel_along_normal < 0:
-                   impulse = (2 * vel_along_normal) / (a1.radius**2 + a2.radius**2)
+                    # This is the collision math
+                    # the velocity on their direct path
+                    rel_vel = a2.velocity - a1.velocity
+                    vel_along_normal = rel_vel.dot(normal)
 
-                   a1.velocity += normal * impulse * a2.radius**2
-                   a2.velocity -= normal * impulse * a1.radius**2
-   # =====================================================
-   # 6.75. ASTEROID PLAYER COLLISION
-   # =====================================================
+                    # 2v/m1+m2
+                    if vel_along_normal < 0:
+                        impulse = (2 * vel_along_normal) / (a1.radius**2 + a2.radius**2)
 
-   for asteroid in asteroids:
-       if asteroid_hits_player(
-           asteroid, player
-           ):
-           print("asteroid_hits_player!")
+                        a1.velocity += normal * impulse * a2.radius**2
+                        a2.velocity -= normal * impulse * a1.radius**2
+    # =====================================================
+    # 6.75. ASTEROID PLAYER COLLISION
+    # =====================================================
 
-   # =====================================================
-   # 7. DRAW EVERYTHING
-   # =====================================================
+    for asteroid in asteroids:
+        if asteroid_hits_player(
+            asteroid, player
+            ):
+            print("asteroid_hits_player!")
 
-   screen.fill(BLACK)
 
-   # Draw asteroids
-   for asteroid in asteroids:
-       asteroid.draw()
+    # =====================================================
+    # 6.8. MISSILE PLAYER COLLISION
+    # =====================================================
 
-   # Draw missiles
-   for missile in missiles:
-       missile.draw()
+    for missile in missiles:
+        if missile_hits_player(
+            missile, player
+            ):
+            print("missile_hits_player!")
 
-   # -----------------------------------------------------
-   # Draw vectors BEFORE ship
-   # -----------------------------------------------------
 
-   # RED = where ship is facing
-   player.draw_forward_vector()
+    # =====================================================
+    # 6.85. MISSILE ENEMY COLLISION
+    # =====================================================
 
-   # BLUE = where ship is actually moving
-   player.draw_velocity_vector()
+    for missile in missiles:
+        if missile_hits_enemy(
+            missile, enemy
+            ):
+            print("missile_hits_enemy!")
+            game_over_screen()
 
-   # Draw spaceship
-   player.draw()
+    # =====================================================
+    # 7. DRAW EVERYTHING
+    # =====================================================
 
-   enemy.draw_forward_vector()
-   enemy.draw(player)
+    screen.fill(BLACK)
 
-   # =====================================================
-   # 8. DISPLAY INFORMATION
-   # =====================================================
+    # Draw asteroids
+    for asteroid in asteroids:
+        asteroid.draw()
 
-   forward = (
-       player.get_forward_vector()
-   )
+    # Draw missiles
+    for missile in missiles:
+        missile.draw()
 
-   speed = (
-       player.velocity.length()
-   )
+    # -----------------------------------------------------
+    # Draw vectors BEFORE ship
+    # -----------------------------------------------------
 
-   # -----------------------------------------------------
-   # Controls
-   # -----------------------------------------------------
+    # RED = where ship is facing
+    player.draw_forward_vector()
 
-   controls_text = font.render(
-       "LEFT/RIGHT: Rotate   UP: Thrust   SPACE: Fire",
-       True,
-       WHITE
-   )
+    # BLUE = where ship is actually moving
+    player.draw_velocity_vector()
 
-   screen.blit(
-       controls_text,
-       (20, 15)
-   )
+    # Draw spaceship
+    player.draw()
 
-   # -----------------------------------------------------
-   # Angle
-   # -----------------------------------------------------
+    enemy.draw_forward_vector()
+    enemy.draw(player)
 
-   angle_text = font.render(
-       f"Angle: {player.angle % 360:.0f} degrees",
-       True,
-       WHITE
-   )
+    # =====================================================
+    # 8. DISPLAY INFORMATION
+    # =====================================================
 
-   screen.blit(
-       angle_text,
-       (20, 45)
-   )
+    forward = (
+        player.get_forward_vector()
+    )
 
-   # -----------------------------------------------------
-   # Forward Vector
-   # -----------------------------------------------------
+    speed = (
+        player.velocity.length()
+    )
 
-   forward_text = font.render(
-       f"Forward: ({forward.x:.2f}, {forward.y:.2f})",
-       True,
-       RED
-   )
-   screen.blit(
-       forward_text,
-       (20, 75)
-   )
+    # -----------------------------------------------------
+    # Controls
+    # -----------------------------------------------------
 
-   # -----------------------------------------------------
-   # Velocity Vector
-   # -----------------------------------------------------
+    controls_text = font.render(
+        "LEFT/RIGHT: Rotate   UP: Thrust   SPACE: Fire",
+        True,
+        WHITE
+    )
 
-   velocity_text = font.render(
-       f"Velocity: ({player.velocity.x:.2f}, "
-       f"{player.velocity.y:.2f})",
-       True,
-       BLUE
-   )
-   screen.blit(
-       velocity_text,
-       (20, 105)
-   )
+    screen.blit(
+        controls_text,
+        (20, 15)
+    )
 
-   # -----------------------------------------------------
-   # Speed
-   # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Angle
+    # -----------------------------------------------------
 
-   speed_text = font.render(
-       f"Speed: {speed:.2f}",
-       True,
-       WHITE
-   )
-   screen.blit(
-       speed_text,
-       (20, 135)
-   )
+    angle_text = font.render(
+        f"Angle: {player.angle % 360:.0f} degrees",
+        True,
+        WHITE
+    )
 
-   # -----------------------------------------------------
-   # Acceleration
-   # -----------------------------------------------------
+    screen.blit(
+        angle_text,
+        (20, 45)
+    )
 
-   acceleration_text = font.render(
-       f"Acceleration: "
-       f"({player.acceleration.x:.2f}, "
-       f"{player.acceleration.y:.2f})",
-       True,
-       WHITE
-   )
-   screen.blit(
-       acceleration_text,
-       (20, 165)
-   )
+    # -----------------------------------------------------
+    # Forward Vector
+    # -----------------------------------------------------
 
-   # -----------------------------------------------------
-   # Score
-   # -----------------------------------------------------
+    forward_text = font.render(
+        f"Forward: ({forward.x:.2f}, {forward.y:.2f})",
+        True,
+        RED
+    )
+    screen.blit(
+        forward_text,
+        (20, 75)
+    )
 
-   score_text = font.render(
-       f"Asteroids Hit: {score}",
-       True,
-       WHITE
-   )
-   screen.blit(
-       score_text,
-       (20, 195)
-   )
+    # -----------------------------------------------------
+    # Velocity Vector
+    # -----------------------------------------------------
 
-   # -----------------------------------------------------
-   # Vector Legend
-   # -----------------------------------------------------
+    velocity_text = font.render(
+        f"Velocity: ({player.velocity.x:.2f}, "
+        f"{player.velocity.y:.2f})",
+        True,
+        BLUE
+    )
+    screen.blit(
+        velocity_text,
+        (20, 105)
+    )
 
-   legend_text = font.render(
-       "RED = Facing Direction     BLUE = Velocity",
-       True,
-       WHITE
-   )
+    # -----------------------------------------------------
+    # Speed
+    # -----------------------------------------------------
 
-   screen.blit(
-       legend_text,
-       (20, HEIGHT - 65)
-   )
+    speed_text = font.render(
+        f"Speed: {speed:.2f}",
+        True,
+        WHITE
+    )
+    screen.blit(
+        speed_text,
+        (20, 135)
+    )
 
-   # -----------------------------------------------------
-   # Main Lesson Formula
-   # -----------------------------------------------------
+    # -----------------------------------------------------
+    # Acceleration
+    # -----------------------------------------------------
 
-   formula_text = font.render(
-       "Acceleration -> Velocity -> Position",
-       True,
-       GREEN
-   )
+    acceleration_text = font.render(
+        f"Acceleration: "
+        f"({player.acceleration.x:.2f}, "
+        f"{player.acceleration.y:.2f})",
+        True,
+        WHITE
+    )
+    screen.blit(
+        acceleration_text,
+        (20, 165)
+    )
 
-   screen.blit(
-       formula_text,
-       (20, HEIGHT - 35)
-   )
+    # -----------------------------------------------------
+    # Score
+    # -----------------------------------------------------
 
-   pygame.display.flip()
+    score_text = font.render(
+        f"Asteroids Hit: {score}",
+        True,
+        WHITE
+    )
+    screen.blit(
+        score_text,
+        (20, 195)
+    )
+
+    # -----------------------------------------------------
+    # Vector Legend
+    # -----------------------------------------------------
+
+    legend_text = font.render(
+        "RED = Facing Direction     BLUE = Velocity",
+        True,
+        WHITE
+    )
+
+    screen.blit(
+        legend_text,
+        (20, HEIGHT - 65)
+    )
+
+    # -----------------------------------------------------
+    # Main Lesson Formula
+    # -----------------------------------------------------
+
+    formula_text = font.render(
+        "Acceleration -> Velocity -> Position",
+        True,
+        GREEN
+    )
+
+    screen.blit(
+        formula_text,
+        (20, HEIGHT - 35)
+    )
+
+    pygame.display.flip()
 pygame.quit()
