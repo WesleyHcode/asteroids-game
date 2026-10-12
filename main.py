@@ -79,6 +79,7 @@ class Spaceship:
         self.angle = 90
         self.radius = 18
         self.is_thrusting = False
+        self.invincible_time = 0 
 
     # -----------------------------------------------------
     # Convert Angle -> Forward Direction Vector
@@ -99,6 +100,8 @@ class Spaceship:
 
     def update(self):
         keys = pygame.key.get_pressed()
+        if self.invincible_time > 0:
+            self.invincible_time -= 1
 
         # -------------------------------------------------
         # Rotation
@@ -191,7 +194,8 @@ class Spaceship:
 
     def draw(self):
         forward = self.get_forward_vector()
-
+        if self.invincible_time > 0 and (self.invincible_time // 4) % 2 == 0:
+            return
         # Rotate the forward vector to make
         # the other two corners of the ship.
         left = forward.rotate(140)
@@ -619,22 +623,44 @@ def missile_hits_enemy(
         return distance < missile.radius + enemy.radius
 
 def game_over_screen():
-    game_over_font = pygame.font.Font(None, 72)
-    game_over_text = game_over_font.render(
-        "Game over!, You wanna try again? (R)",
-        True,
-        RED
-    )
-    text_rect = game_over_text.get_rect(
-        center=(WIDTH / 2, HEIGHT / 2)
-    )
-    screen.blit(game_over_text, text_rect)
-    pygame.display.flip()
-    pygame.time.delay(3000)
-    if pygame.key.get_pressed()[pygame.K_r]:
-        main()
+    global score, missiles, asteroids
+    score -= 10
+    
+    player.position = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
+    player.velocity = pygame.Vector2(0, 0)
+    player.acceleration = pygame.Vector2(0, 0)
+    
+    missiles.clear()
+    asteroids.clear()  # Wipes out the asteroid that hit you (and all others)
 
+    game_over_screen_active = True
+    
+    while game_over_screen_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+                
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    game_over_screen_active = False # Signal loop exit
 
+        screen.fill(BLACK)
+        game_over_text = font.render(
+            "Player Hit! Score -10! Enter to continue",
+            True,
+            WHITE
+        )
+        screen.blit(
+            game_over_text,
+            (WIDTH / 2 - game_over_text.get_width() / 2, HEIGHT / 2)
+        )
+        pygame.display.flip()
+        clock.tick(FPS)
+
+    asteroids = [Asteroid() for _ in range(NUM_ASTEROIDS)]
+
+    pygame.event.clear()
 
 # =========================================================
 # Create Game Objects
@@ -798,7 +824,7 @@ while running:
             asteroid, player
             ):
             print("asteroid_hits_player!")
-
+            game_over_screen()
 
     # =====================================================
     # 6.8. MISSILE PLAYER COLLISION
@@ -809,7 +835,7 @@ while running:
             missile, player
             ):
             print("missile_hits_player!")
-
+            game_over_screen()
 
     # =====================================================
     # 6.85. MISSILE ENEMY COLLISION
@@ -820,7 +846,7 @@ while running:
             missile, enemy
             ):
             print("missile_hits_enemy!")
-            game_over_screen()
+            score += 5
 
     # =====================================================
     # 7. DRAW EVERYTHING
@@ -958,7 +984,7 @@ while running:
     # -----------------------------------------------------
 
     score_text = font.render(
-        f"Asteroids Hit: {score}",
+        f"Score: {score}",
         True,
         WHITE
     )
@@ -972,7 +998,8 @@ while running:
     # -----------------------------------------------------
 
     legend_text = font.render(
-        "RED = Facing Direction     BLUE = Velocity",
+        "RED = Facing Direction     BLUE = Velocity    " \
+        "SCORE = Asteroid Hits (+1) / Enemy Hits (+5) / Player Hit (-10)",
         True,
         WHITE
     )
