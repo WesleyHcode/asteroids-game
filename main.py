@@ -631,8 +631,7 @@ def game_over_screen():
     player.acceleration = pygame.Vector2(0, 0)
     
     missiles.clear()
-    asteroids.clear()  # Wipes out the asteroid that hit you (and all others)
-
+    asteroids.clear()
     game_over_screen_active = True
     
     while game_over_screen_active:
@@ -643,7 +642,7 @@ def game_over_screen():
                 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    game_over_screen_active = False # Signal loop exit
+                    game_over_screen_active = False
 
         screen.fill(BLACK)
         game_over_text = font.render(
