@@ -17,46 +17,6 @@ import math
 # Direction -> Acceleration -> Velocity -> Position
 # ---------------------------------------------------------
 
-async def game_over_screen():
-    global score, missiles, asteroids
-    score -= 10
-    
-    player.position = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
-    player.velocity = pygame.Vector2(0, 0)
-    player.acceleration = pygame.Vector2(0, 0)
-    
-    missiles.clear()
-    asteroids.clear()
-    game_over_screen_active = True
-    
-    while game_over_screen_active:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
-                    game_over_screen_active = False
-
-        screen.fill(BLACK)
-        game_over_text = font.render(
-            "Player Hit! Score -10! Enter to continue",
-            True,
-            WHITE
-        )
-        screen.blit(
-            game_over_text,
-            (WIDTH / 2 - game_over_text.get_width() / 2, HEIGHT / 2)
-        )
-        pygame.display.flip()
-        clock.tick(FPS)
-        
-        await asyncio.sleep(0)
-
-    asteroids = [Asteroid() for _ in range(NUM_ASTEROIDS)]
-    pygame.event.clear()
-
-
 pygame.init()
 
 # =========================================================
@@ -687,14 +647,60 @@ for i in range(NUM_ASTEROIDS):
 
 missiles = []
 score = 0
+
+# =========================================================
+# Async Game Functions
+# =========================================================
+
+async def game_over_screen():
+    global score, missiles, asteroids
+    score -= 10
+    
+    player.position = pygame.Vector2(WIDTH // 2, HEIGHT // 2)
+    player.velocity = pygame.Vector2(0, 0)
+    player.acceleration = pygame.Vector2(0, 0)
+    
+    missiles.clear()
+    asteroids.clear()
+    game_over_screen_active = True
+    
+    while game_over_screen_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+                
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    game_over_screen_active = False
+
+        screen.fill(BLACK)
+        game_over_text = font.render(
+            "Player Hit! Score -10! Enter to continue",
+            True,
+            WHITE
+        )
+        screen.blit(
+            game_over_text,
+            (WIDTH / 2 - game_over_text.get_width() / 2, HEIGHT / 2)
+        )
+        pygame.display.flip()
+        clock.tick(FPS)
+        
+        await asyncio.sleep(0)
+
+    for i in range(NUM_ASTEROIDS):
+        asteroids.append(Asteroid())
+    pygame.event.clear()
+
 async def main():
+    global score, missiles, asteroids, player, enemy
     # =========================================================
     # Main Game Loop
     # =========================================================
 
     running = True
     while running:
-        clock.tick(FPS)
         # =====================================================
         # 1. EVENT HANDLING
         # =====================================================
@@ -782,7 +788,7 @@ async def main():
                         break
 
         # =====================================================
-        # 6.5. ASTEROID ASTEROID COLLISION - this is actually just an edit of my crazy asteroids code
+        # 6.5. ASTEROID ASTEROID COLLISION
         # =====================================================
 
         for i in range(len(asteroids)):
@@ -1029,5 +1035,7 @@ async def main():
         pygame.display.flip()
         clock.tick(60) 
         await asyncio.sleep(0) 
+
+    pygame.quit()
 
 asyncio.run(main())
